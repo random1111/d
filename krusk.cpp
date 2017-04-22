@@ -78,25 +78,11 @@ void Alg::kruskal(int arr[20][20],int n)
             }
         }
 
-
-    while(visited[u])
-    {
-        u=visited[u];
-        cout<<"visited node "<<u;
-    }
-
-    while(visited[v])
-    {
-        v=visited[v];
-        cout<<"visited node "<<v;
-    }
-
     if(u!=v)
     {
         edges++;
         cout<<"\nDistance between city : "<<arr1[a]<<"->"<<arr1[b]<<" = " <<min<<" kms";
         min_cost=min_cost+min;
-        visited[v]=u;
     }
     arr[a][b]=arr[b][a]=999;
 
