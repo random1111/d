@@ -1,286 +1,232 @@
-#include <iostream>
+//exp tree
+
+#include<iostream>
+#include<ctype.h>
 using namespace std;
-#define MAX 20
 
-typedef struct TreeNode
+struct node
 {
-	    char data;
-	    TreeNode *leftChild,  *rightChild;
-}TreeNode;
-
-typedef struct StackNode
-{
-	TreeNode *data;
-	StackNode *next;
-}StackNode;
-
-class Tree
-{
-public :
-
-	TreeNode *head;
-    StackNode *stackTop;
-
-    Tree()
-    {
-        head = NULL;
-        stackTop = NULL;
-    }
-
-    // Stack Operations
-    void push(TreeNode *);
-    TreeNode* pop();
-    int isEmpty();
-    int isFull();
-
-    // Validate input Postfix expression
-    int validate(char[]);
-
-    // Expression Tree Creation
-    int isOp(char);
-    int createTree(char[]);
-
-    // Traversal with recursion
-    void inOrder(TreeNode *);
-    void preOrder(TreeNode *);
-    void postOrder(TreeNode *);
-
-    // Traversal without recursion
-    void inOredeWO();
-    void preOredeWO();
-    void postOredeWO();
+ char data;
+ int flag;
+ struct node *left;
+ struct node *right;
 };
 
-void Tree::push(TreeNode *data)
+class stack
 {
-     if(stackTop == NULL)
-     {
-         stackTop = new StackNode;
-         stackTop -> data = data;
-         stackTop -> next = NULL;
-     }
-     else
-     {
-        StackNode *temp = new StackNode;
-        temp -> data = data;
-        temp -> next = stackTop;
-        stackTop = temp;
-    }
+	node *data[30];
+	int top;
+public:
+	stack()
+{
+		top=-1;
 }
 
-TreeNode* Tree :: pop()
-{
-	TreeNode *data;
-	if(stackTop == NULL)
+	bool isempty()
 	{
-		cout<<"\nCant delete stack underflow...";
+		if(top==-1)
+			return true;
+		return false;
 	}
-	else
+
+	void push(node *p)
 	{
-		data = stackTop -> data;
-		stackTop = stackTop -> next;
+		top=top+1;
+		data[top]=p;
 	}
-	return data;
+
+	node *pop()
+	{
+		return(data[top--]);
+	}
+};
+
+
+void preorder_rec(node *t)
+{
+	if(t!=NULL)
+	{
+		cout<<t->data;
+	    preorder_rec(t->left);
+	    preorder_rec(t->right);
+	}
+
 }
 
-int Tree::isOp(char ch)
+void postorder_rec(node *t)
 {
-    if(ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch== '$' || ch=='^')
-        return 1;
-    else
-        return 0;
+	if(t!=NULL)
+	{
+		postorder_rec(t->left);
+		postorder_rec(t->right);
+		cout<<t->data;
+	}
 }
 
-int Tree::createTree(char post[])
+void inorder_rec(node *t)
 {
-    int i=0;
-    if(validate(post) == 1)
-    {
-		while(post[i]!='\0')
+	if(t!=NULL)
+	{
+		inorder_rec(t->left);
+		cout<<t->data;
+		inorder_rec(t->right);
+	}
+}
+
+void preorder_nonrec(stack s,node *t)
+{
+	while(t!=NULL)
+	{
+		cout<<t->data;
+		s.push(t);
+		t=t->left;
+	}
+	while(!s.isempty())
+	{
+         t=s.pop();
+		 t=t->right;
+		 while(t!=NULL)
+		 {
+			 cout<<t->data;
+			 s.push(t);
+			 t=t->left;
+		 }
+	}
+
+}
+
+void inorder_nonrec(stack s,node *t)
+{
+	while(t!=NULL)
+	{
+		s.push(t);
+		t=t->left;
+	}
+	while(!s.isempty())
+	{
+		t=s.pop();
+		cout<<t->data;
+		t=t->right;
+		while(t!=NULL)
 		{
-			TreeNode *node = new TreeNode();
-			node->data = post[i];
-			if(isalnum(post[i]))		// character is alphbet or number
-			{
-				push(node);
-			}
-			else									//  character is operator
-			{
-				node->rightChild = pop();
-				node->leftChild = pop();
-				push(node);
-			}
-			i++;
+			s.push(t);
+			t=t->left;
 		}
-		head = pop();
 	}
-    else
-    {
-    	return 0;
-    }
+
 }
 
-void Tree::inOrder(TreeNode *temp)
+void postorder_nonrec(node *root)
 {
-    if(temp!=NULL)
-    {
-        inOrder(temp->leftChild);
-        cout<<"\t"<<temp->data;
-        inOrder(temp->rightChild);
-    }
-}
-
-void Tree::preOrder(TreeNode *temp)
-{
-    if(temp!=NULL)
-    {
-        cout<<"\t"<<temp->data;
-        preOrder(temp->leftChild);
-        preOrder(temp->rightChild);
-    }
-}
-
-void Tree::postOrder(TreeNode *temp)
-{
-    if(temp!=NULL)
-    {
-        postOrder(temp->leftChild);
-        postOrder(temp->rightChild);
-        cout<<"\t"<<temp->data;
-    }
-}
-
-void Tree::inOredeWO()
-{
-    stackTop = NULL;
-    TreeNode *p = head;
-    while(p!=NULL || stackTop != NULL)
-    {
-        while(p!=NULL)
-        {
-            push(p);
-            p = p -> leftChild;
-        }
-        p = pop();
-        cout<<"\t"<<p->data;
-        p = p -> rightChild;
-    }
-}
-
-void Tree::preOredeWO()
-{
-    stackTop = NULL;
-    TreeNode *p = head;
-    while(p!=NULL || stackTop != NULL)
-    {
-        while(p!=NULL)
-        {
-            cout<<"\t"<<p->data;
-            push(p);
-            p = p -> leftChild;
-        }
-        p = pop();
-        p = p -> rightChild;
-    }
-}
-
-void Tree::postOredeWO()
-{
-	int i=0;
-	char str[50];
-	TreeNode *p = head;
-	while(stackTop!=NULL||p!=NULL)
+	stack s,s1;
+	node *t=root;
+	while(t!=NULL)
 	{
-		while(p!=NULL)
-		{
-			str[i++]=p->data;
-			push(p);
-			p=p->rightChild;
-		}
-		p=pop();
-		p=p->leftChild;
+		s.push(t);
+		s1.push(NULL);
+		t=t->left;
 	}
-	while(--i>=0)
-	   cout<<"\t"<<str[i];
-}
-int Tree :: validate(char p[50])
-{
-
-	int i=0,cnt=0;
-	while(p[i]!='\0')
+	while(!s.isempty())
 	{
-		if(isalpha(p[i]))
+		t=s.pop();
+		if(s1.pop()==NULL)
 		{
-			cnt++;
-			i++;
+			s.push(t);
+			s1.push((node*)1);
+			t=t->right;
+			while(t!=NULL)
+			{
+				s.push(t);
+				s1.push(NULL);
+				t=t->left;
+			}
 		}
 		else
-		{
-			cnt--;
-			i++;
-		}
+			cout<<t->data;
 	}
-	if(cnt==1)
-	return 1;
-	else
-	{
-		if(cnt==0)
-		cout<<"\nInvalid : Operators & Operands are EQUAL";
-		cout<<"\n";
 
-		if(cnt<0)
-		cout<<"\nInvalid : Operators are MORE than Operands";
-		cout<<"\n";
-
-		if(cnt>0)
-		cout<<"\nInvalid : Operands are MORE than Operators";
-		cout<<"\n";
-
-		return 0;
-	}
 }
 
-int main() {
+int main()
+{
+	stack s;
+	node *top,*t1,*t2;
+    top=NULL;
+    char postfix[30];
+	int ch,op;
 
-    int ch;
-    char post[20];
-    Tree T;
+	cout<<"\n ENTER A POSTFIX EXPRESIION ";
+    cin>>postfix;
 
-    cout<<"\nEnter postfix expression:";
-    cin>>post;
-    if(T.createTree(post))
+
+   	    for(int i=0;postfix[i]!=0;i++)
+   	    {
+   	    	if(isalnum(postfix[i]))
+   	    	{
+   	    		top=new node;
+   	    		top->left=NULL;
+   	    		top->right=NULL;
+   	    		top->data=postfix[i];
+   	    		s.push(top);
+   	    	}
+   	    	else
+   	    	{
+   	    		t2=s.pop();
+   	    		t1=s.pop();
+   	    		top=new node;
+   	    		top->data=postfix[i];
+   	    		top->left=t1;
+   	    		top->right=t2;
+   	    		s.push(top);
+   	    	}
+   	    }
+   	    top=s.pop();
+   	    cout<<"\n EXPRESSION HAS BEEN CONVERTED INTO EXPRESSION TREE SUCCESSFULLY!";
     do
     {
-        cout<<"\n1.Inorder \n2.Preorder \n3.Postorder \n4.Inorder Non Recursive \n5.Preorder Non Recursive \n6.Postorder Non Recursive \n7.Exit\n";
-        cin>>ch;
-        switch(ch) {
+    cout<<"\n ***MENU***";
+    cout<<"\n 1. PREORDER  TRAVERSAL(REC.) ";
+    cout<<"\n 2. POSTORDER TRAVERSAL(REC.) ";
+    cout<<"\n 3. INORDER   TRAVERSAL(REC.) ";
+    cout<<"\n 4. PREODER   TRAVERSAL(NON-REC.)";
+    cout<<"\n 5. INORDER   TRAVERSAL(NON-REC.) ";
+    cout<<"\n 6. POSTORDER TRAVERSAL(NON-REC.) ";
 
-            case  1:
-                T.inOrder(T.head);
-                break;
-            case  2:
-                T.preOrder(T.head);
-                break;
-            case  3:
-                T.postOrder(T.head);
-                break;
-            case 4:
-                T.inOredeWO();
-                break;
-            case 5:
-                T.preOredeWO();
-                break;
-            case 6:
-                T.postOredeWO();
-                break;
-            case 7:
-                goto exit;
-            default :
-                cout<<"\nWrong choice please try again...";
-        }
+    cout<<"\n ENTER YOUR CHOICE! ";
+    cin>>ch;
+    switch(ch)
+    {
 
-    } while(1);
+    case 1:cout<<"\n RECURSIVE PREORDER TRAVERSAL IS :";
+    	   preorder_rec(top);
+           break;
 
-    exit:
-    return 0;
+    case 2:cout<<"\n RECURSIVE POSTORDER TRAVERSAL IS :";
+           postorder_rec(top);
+           break;
+
+    case 3:cout<<"\n RECURSIVE INORDER TRAVERSAL IS :";
+           inorder_rec(top);
+           break;
+
+    case 4:cout<<"\n NON-RECURSIVE PREORDER TRAVERSAL IS :";
+           preorder_nonrec(s,top);
+           break;
+
+    case 5:cout<<"\n NON-RECURSIVE INORDER TRAVERSAL IS :";
+           inorder_nonrec(s,top);
+           break;
+
+    case 6:cout<<"\n NON-RECURSIVE POSTORDER TRAVERSAL IS :";
+           postorder_nonrec(top);
+           break;
+   }
+
+    cout<<"\n PRESS 1 TO CONTINUE OR 0 TO EXIT!";
+    cin>>op;
+    }while(op==1);
+ return 0;
 }
+
+/*
+
