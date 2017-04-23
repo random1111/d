@@ -1,143 +1,170 @@
-#include<iostream>
-#include<iomanip>
-#include<string.h>
+#include <iostream>
 using namespace std;
-#define INFINITY 999;
-
-class graph {
-	char vnames[10][10];
-	int nodes,cost[10][10],spanning[10][10];
-	int visited[10],distance[10], from[10];
-    int source;
-	public:
-	graph();
-	int position(char s[10]);
-	void create_graph();
-	void display();
-    void initialize();
-	int prims();
+class graph
+{
+  int n,cost[10][10],visited[10],mst[10][10];
+  string city[10];
+public:
+  graph()
+  {
+	  int i,j;
+	  for(i=0;i<10;i++)
+	  {
+		  for(j=0;j<10;j++)
+		  {
+			  mst[i][j]=0;
+			  cost[i][j]=0;
+		      visited[i]=0;
+		  }
+	  }
+  }
+  void accept_data();
+  void accept_cost();
+  int location(string );
+  void display();
+  void display_mst();
+  void create_mst();
 };
-
-graph::graph() {
-	nodes=0;
-	for(int i=0;i<10;i++)
-	for(int j=0;j<10;j++) {
-		if(i==j)
-		cost[i][j]=0;
-		else
-		cost[i][j]=999;
-
-		spanning[i][j] =0;
-	    }
-}
-
-void graph::create_graph() {
-	char ans,start[10],end[10];
-	int wt,i,j;
-	cout<<"Enter no of nodes:";
-	cin>>nodes;
-	cout<<"\n Enter vertex name: ";
-	for(i=0;i<nodes;i++) {
-        cin>>vnames[i];
-	}
-	do {
-		cout<<"Enter start and end points of the edge: ";
-		cin>>start>>end;
-		cout<<"Enter the weight: ";
-		cin>>wt;
-		i=position(start);
-		j=position(end);
-		cost[j][i]=cost[i][j]=wt;
-		cout<<"\n more edges";
-		cin>>ans;
-	} while(ans=='y'||ans=='Y');
-
-}
-
-void graph::display() {
-	int i,j;
-	cout<<"\n Adjacency matrix\n\t";
-	for(i=0;i<nodes;i++)
-	cout<<"\t"<<i;
-	for(i=0;i<nodes;i++) {
-		cout<<"\n\t"<<i;
-		for(j=0;j<nodes;j++)
-		cout<<"\t"<<cost[i][j];
-	}
-	cout << "\n";
-}
-
-int graph::position(char s[10]) {
+void graph :: accept_data()
+{
 	int i;
-	for(i=0;i<10;i++)
-	if(strcmp(vnames[i],s)==0)
-	break;
-	return i;
+	cout<<"Enter total number of cities : ";
+	cin>>n;
+	cout<<"Enter the name of cities : ";
+	for(i=0;i<n;i++)
+	{
+		cin>>city[i];
+	}
+	accept_cost();
 }
-
-void graph::initialize(){
-            for(int i=0;i<nodes;i++) {
-            	from[i] = source;
-                visited[i] = 0;
-                distance[i] = cost[source][i];
-            }
-            distance[source]= 0;
-            visited[source]=1;
+int graph :: location(string key)
+{
+	int i;
+	for(i=0;i<n;i++)
+	{
+		if(city[i]==key)
+			return i;
+	}
 }
-
-int graph :: prims() {
-    int u,v,min_distance;
-    int no_of_edges,i,min_cost,j;
-
-    cout<<"Enter the source vertex\n";
-    cin>>source;
-    while((source<0) && (source>nodes-1)) {
-    	   cout<<"Source vertex should be between 0 and"<<nodes-1<<endl;
-    	   cout<<"Enter the source vertex again\n";
-    	   cin>>source;
-    }
-    initialize();
-    min_cost=0;        //cost of spanning tree
-    no_of_edges=nodes-1;        //no. of edges to be added
-    cout << "\n Minimum Spanning Tree:";
-    while(no_of_edges>0) {
-        //find the vertex at minimum distance from the tree
-        min_distance=INFINITY;
-        for(i=0;i<nodes;i++)
-            if(visited[i]==0&&distance[i]<min_distance) {
-                v=i;
-                min_distance=distance[i];
-            }
-
-        u=from[v];
-
-        //insert the edge in spanning tree
-        spanning[u][v]=distance[v];
-        spanning[v][u]=distance[v];
-        no_of_edges--;
-        visited[v]=1;
-
-        //updated the distance[] array
-        for(i=0;i<nodes;i++)
-            if(visited[i]==0&&cost[i][v]<distance[i]) {
-                distance[i]=cost[i][v];
-                from[i]=v;
-            }
-        cout << "\n edge(" << u <<"," << v << ")" << cost[u][v];
-
-
-        min_cost=min_cost+cost[u][v];
-    }
-
-    return(min_cost);
+void graph :: accept_cost()
+{
+	int i,j,c;
+	char ch;
+	string loc1,loc2;
+	do
+	{
+	cout<<"Enter the city with a route and its cost : ";
+	cin>>loc1>>loc2>>c;
+	i=location(loc1);
+	j=location(loc2);
+	if(cost[i][j]==0)
+			cost[i][j]=cost[j][i]=c;
+		else
+			cout<<"A flight already exits.\n";
+	cout<<"Any more routes (y/n) : ";
+	cin>>ch;
+	}while(ch=='y');
 }
-
-int main() {
-	graph sp;
-	sp.create_graph();
-	sp.display();
-	int cost = sp.prims();
-
-	cout << "\n Cost of minimum spanning tree:"<<cost;
+void graph :: display()
+{
+	int i,j,c=65;
+	cout<<"  ";
+	for(i=0;i<n;i++)
+	{	cout<<(char)c<<" ";
+	    c++;
+	}
+	cout<<endl;
+	c=65;
+	for(i=0;i<n;i++)
+	{
+		cout<<(char)c<<" ";
+		c++;
+		for(j=0;j<n;j++)
+		{
+			cout<<cost[i][j]<<" ";
+		}
+		cout<<endl;
+	}
+	c=65;
+	for(i=0;i<n;i++)
+	{
+		cout<<(char)c<<" -> "<<city[i]<<endl;
+		c++;
+	}
+}
+void graph :: create_mst()
+{
+  int i,j,k=0,min,sum=0,source,destination;
+  string start;
+  cout<<"Enter the source city : ";
+  cin>>start;
+  visited[location(start)]=1;
+  while(k<n)
+  {
+	  min=999;
+	  for(i=0;i<n;i++)
+	  {
+		  if( visited[i]==1)
+		  {
+			  for(j=0;j<n;j++)
+			  {
+				  if(visited[j]==0)
+				  {
+					  if(cost[i][j]!=0 && cost[i][j]<min)
+					  {
+						  min=cost[i][j];
+						  source=i;
+						  destination=j;
+					  }
+				  }
+			  }
+		  }
+	  }
+	  if(min!=999)
+	   {
+             visited[destination]=1;
+	     mst[source][destination]=mst[destination][source]=min;
+	     sum=sum+min;
+           }
+	  k++;
+  }
+  cout<<"Cost of minimum spanning tree : "<<sum<<endl; 
+}
+void graph :: display_mst()
+{
+	int i,j,c=65;
+	cout<<"  ";
+	for(i=0;i<n;i++)
+	{	cout<<(char)c<<" ";
+	    c++;
+	}
+	cout<<endl;
+	c=65;
+	for(i=0;i<n;i++)
+	{
+		cout<<(char)c<<" ";
+		c++;
+		for(j=0;j<n;j++)
+		{
+			cout<<mst[i][j]<<" ";
+		}
+		cout<<endl;
+	}
+	c=65;
+	for(i=0;i<n;i++)
+	{
+		cout<<(char)c<<" -> "<<city[i]<<endl;
+		c++;
+	}
+}
+int main()
+{
+    graph g;
+    g.accept_data();
+    cout<<"Adjacency matrix : \n";
+    g.display();
+    g.create_mst();
+    cout<<"Minimum spanning tree matrix : \n";
+    g.display_mst();
 	return 0;
 }
